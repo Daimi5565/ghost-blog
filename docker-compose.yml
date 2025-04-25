@@ -1,3 +1,4 @@
+version: '3'
 services:
   ghost:
     image: ghost:5
@@ -12,8 +13,7 @@ services:
       database__connection__password: ghostpass
       database__connection__database: ghostdb
     depends_on:
-      db:
-        condition: service_healthy
+      - db  # remove the condition, it's handled differently in Kubernetes
 
   db:
     image: mysql:8
@@ -23,13 +23,13 @@ services:
       MYSQL_DATABASE: ghostdb
       MYSQL_USER: ghost
       MYSQL_PASSWORD: ghostpass
+    volumes:
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - mysql_data:/var/lib/mysql
 
 volumes:
   mysql_data:
